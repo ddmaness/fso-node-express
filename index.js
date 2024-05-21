@@ -1,8 +1,23 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 const port = 3003
 
 app.use(express.json())
+
+morgan.token('payload', (req, res) => req.method === 'POST' ? JSON.stringify(req.body) : '')
+
+const morganResponseFormat = (tokens, req, res) => {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens['response-time'](req, res), 'ms',
+    tokens.payload(req, res),
+  ].join(' ')
+}
+
+app.use(morgan(morganResponseFormat))
 
 let contacts = [
   { 
